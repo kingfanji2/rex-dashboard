@@ -1,0 +1,2 @@
+# rex-dashboard
+OFFICIAL REX DISCORD BOT
