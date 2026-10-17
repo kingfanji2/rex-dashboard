@@ -1,1 +1,227 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rex Dashboard</title>
+<style>
+:root{--bg:#090b12;--panel:#111522;--panel2:#191e30;--border:#292f43;--text:#f3f5ff;--muted:#9aa3bb;--cyan:#52e5ff;--purple:#9270ff;--green:#51e6a5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{width:235px;flex-shrink:0;background:#0d101a;border-right:1px solid var(--border);padding:22px 13px}
+.brand{display:flex;align-items:center;gap:12px;padding:0 10px 30px}
+.logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;font-size:25px;font-weight:bold;color:#080b13;background:linear-gradient(135deg,var(--cyan),var(--purple))}
+.brand h2{font-size:22px;margin:0}
+.brand small{color:var(--muted)}
+.navtitle{font-size:10px;color:#717b97;font-weight:bold;letter-spacing:2px;padding:15px 12px 8px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#a9b1c9;text-align:left;margin:3px 0}
+.nav:hover,.nav.active{background:#1b2032;color:white;border-color:#303650}
+.nav.active{box-shadow:inset 3px 0 var(--cyan)}
+.nav span{width:20px;text-align:center}
+.status{color:var(--muted);font-size:12px;padding:12px 8px;margin-top:25px;border-top:1px solid var(--border)}
+.dot{color:var(--green)}
+.main{min-width:0;flex:1}
+.topbar{min-height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:12px 28px;gap:12px}
+.pill,.btn{border:1px solid var(--border);background:var(--panel);padding:10px 13px;border-radius:10px;color:var(--text);font-size:12px}
+.btn.primary{background:linear-gradient(100deg,var(--cyan),var(--purple));color:#090b12;border:0;font-weight:bold}
+.btn:hover{filter:brightness(1.15)}
+.content{max-width:1250px;margin:auto;padding:30px}
+.page{display:none}
+.page.active{display:block}
+.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:2px;font-weight:bold}
+h1{font-size:30px;margin:10px 0}
+h2{font-size:17px;margin:0}
+.sub{color:var(--muted);line-height:1.6;margin:0 0 25px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:linear-gradient(145deg,#141929,#10131e);border:1px solid var(--border);border-radius:15px;padding:19px;min-width:0}
+.statlabel{color:var(--muted);font-size:12px}
+.stat{font-size:28px;font-weight:bold;margin:14px 0 8px}
+.positive{color:var(--green);font-size:12px}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:28px 0 14px}
+.server{display:flex;align-items:center;gap:13px}
+.servericon{width:47px;height:47px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:#242344}
+.serverinfo{flex:1;min-width:0}
+.serverinfo strong{display:block;margin-bottom:5px}
+.serverinfo small{color:var(--muted)}
+.tag{font-size:10px;color:var(--green);background:#163329;padding:7px;border-radius:7px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.activity{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.activity:last-child{border:0}
+.activityicon{background:var(--panel2);border-radius:10px;padding:10px;height:40px}
+.activity p{margin:0 0 5px;font-size:13px}
+.activity small{color:var(--muted)}
+.search{width:100%;background:#0c0f18;border:1px solid var(--border);border-radius:11px;padding:13px;color:white;outline:none;margin:16px 0}
+.search:focus{border-color:var(--cyan)}
+.command{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--border)}
+.command:last-child{border:0}
+.command code{color:var(--cyan);font-size:13px}
+.command small{display:block;color:var(--muted);margin-top:5px}
+.toggle{width:43px;height:24px;border:0;border-radius:30px;background:#3a4052;padding:3px;flex-shrink:0}
+.toggle:after{content:"";display:block;width:18px;height:18px;border-radius:50%;background:white;transition:.15s}
+.toggle.on{background:#45d9a0}
+.toggle.on:after{transform:translateX(19px)}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 0;border-bottom:1px solid var(--border)}
+.setting:last-child{border:0}
+.setting strong{font-size:14px}
+.setting p{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.5}
+.notice{border:1px solid #414064;background:#19172c;padding:16px;border-radius:12px;color:#c7c3ff;font-size:13px;line-height:1.7;margin-top:20px}
+.muted{color:var(--muted);font-size:13px;line-height:1.7}
+.footer{text-align:center;color:#68718a;font-size:11px;padding:30px 0}
+@media(max-width:900px){.sidebar{width:72px;padding:18px 8px}.brand{padding:0 4px 24px;justify-content:center}.brandtext,.navlabel,.navtitle{display:none}.nav{justify-content:center;padding:13px 4px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.content{padding:22px 17px}.topbar{padding:12px 17px}}
+@media(max-width:520px){.topbar{padding:12px}.pill{font-size:10px}.content{padding:22px 12px}h1{font-size:25px}.grid{gap:9px}.card{padding:13px}.stat{font-size:24px}.tag{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">R</div>
+    <div class="brandtext"><h2>REX</h2><small>Bot Dashboard</small></div>
+  </div>
+  <div class="navtitle">WORKSPACE</div>
+  <button class="nav active" data-page="overview"><span>◈</span><b class="navlabel">Overview</b></button>
+  <button class="nav" data-page="servers"><span>▦</span><b class="navlabel">Servers</b></button>
+  <button class="nav" data-page="commands"><span>⌘</span><b class="navlabel">Commands</b></button>
+  <div class="navtitle">MANAGEMENT</div>
+  <button class="nav" data-page="settings"><span>⚙</span><b class="navlabel">Settings</b></button>
+  <button class="nav" data-page="premium"><span>✦</span><b class="navlabel">Premium</b></button>
+  <div class="status"><span class="dot">●</span> Demo website</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <strong>🦈 REX</strong>
+  <div class="pill">Official Rex Dashboard</div>
+  <button class="btn" id="help">Support ↗</button>
+</header>
+
+<div class="content">
+
+<section class="page active" id="overview">
+  <div class="eyebrow">CONTROL CENTRE</div>
+  <h1>Welcome to Rex.</h1>
+  <p class="sub">Your Discord bot, your settings, your control panel.</p>
+  <div class="grid">
+    <div class="card"><div class="statlabel">Bot status</div><div class="stat" style="font-size:22px">Demo</div><div class="positive">● Preview mode</div></div>
+    <div class="card"><div class="statlabel">Commands</div><div class="stat">35+</div><div class="statlabel">Example count</div></div>
+    <div class="card"><div class="statlabel">Servers</div><div class="stat">—</div><div class="statlabel">Not connected</div></div>
+    <div class="card"><div class="statlabel">Premium</div><div class="stat" style="font-size:22px">Explore</div><div class="statlabel">Feature preview</div></div>
+  </div>
+  <div class="sectionhead"><h2>Your workspace</h2><button class="btn primary" data-goto="servers">View servers →</button></div>
+  <div class="card server">
+    <div class="servericon">🦈</div>
+    <div class="serverinfo"><strong>Rex Dashboard</strong><small>Website preview · Discord not connected</small></div>
+    <span class="tag">PREVIEW</span>
+  </div>
+  <div class="sectionhead"><h2>Quick actions</h2></div>
+  <div class="grid">
+    <button class="card" data-goto="commands" style="text-align:left;color:white"><div class="statlabel">⌘ COMMANDS</div><h2 style="margin-top:12px">Browse commands →</h2></button>
+    <button class="card" data-goto="settings" style="text-align:left;color:white"><div class="statlabel">⚙ CONFIGURATION</div><h2 style="margin-top:12px">Manage settings →</h2></button>
+  </div>
+  <div class="notice">This is a visual demo. Sign-in, live server data and real bot configuration are not connected yet.</div>
+</section>
+
+<section class="page" id="servers">
+  <div class="eyebrow">YOUR COMMUNITIES</div>
+  <h1>Servers</h1>
+  <p class="sub">Manage Rex in your Discord communities.</p>
+  <div class="card server">
+    <div class="servericon">🎮</div>
+    <div class="serverinfo"><strong>Discord server selection</strong><small>Connect Discord to load your servers.</small></div>
+    <button class="btn primary" id="discord">Connect Discord</button>
+  </div>
+  <div class="notice">Discord OAuth is not configured yet, so this button is a demo only. A secure backend must handle authentication before server management can work.</div>
+</section>
+
+<section class="page" id="commands">
+  <div class="eyebrow">COMMAND DIRECTORY</div>
+  <h1>Commands</h1>
+  <p class="sub">Explore example Rex commands.</p>
+  <input class="search" id="commandSearch" placeholder="Search commands..." aria-label="Search commands">
+  <div class="card" id="commandList">
+    <div class="command"><div><code>/help</code><small>View available commands.</small></div><span class="tag">GENERAL</span></div>
+    <div class="command"><div><code>/about</code><small>Learn more about Rex.</small></div><span class="tag">GENERAL</span></div>
+    <div class="command"><div><code>/serverinfo</code><small>View server information.</small></div><span class="tag">SERVER</span></div>
+    <div class="command"><div><code>/userinfo</code><small>View a member's information.</small></div><span class="tag">SERVER</span></div>
+    <div class="command"><div><code>/ticket</code><small>Open a support ticket.</small></div><span class="tag">SUPPORT</span></div>
+    <div class="command"><div><code>/suggest</code><small>Send a suggestion.</small></div><span class="tag">COMMUNITY</span></div>
+    <div class="command"><div><code>/profile</code><small>View a member profile.</small></div><span class="tag">COMMUNITY</span></div>
+    <div class="command"><div><code>/premium</code><small>View premium information.</small></div><span class="tag">PREMIUM</span></div>
+  </div>
+  <p class="muted">These are example listings, not a live import of your bot's commands.</p>
+</section>
+
+<section class="page" id="settings">
+  <div class="eyebrow">PREFERENCES</div>
+  <h1>Settings</h1>
+  <p class="sub">Try the dashboard settings interface.</p>
+  <div class="card">
+    <div class="setting"><div><strong>Welcome messages</strong><p>Show a welcome message to new members.</p></div><button class="toggle on" aria-label="Toggle welcome messages" aria-pressed="true"></button></div>
+    <div class="setting"><div><strong>Level notifications</strong><p>Enable example level-up notifications.</p></div><button class="toggle on" aria-label="Toggle level notifications" aria-pressed="true"></button></div>
+    <div class="setting"><div><strong>Suggestion panel</strong><p>Show the suggestion feature in this demo.</p></div><button class="toggle" aria-label="Toggle suggestion panel" aria-pressed="false"></button></div>
+    <div class="setting"><div><strong>Maintenance notice</strong><p>Display a demo maintenance status.</p></div><button class="toggle" aria-label="Toggle maintenance notice" aria-pressed="false"></button></div>
+  </div>
+  <div class="notice">These switches only change their appearance in your browser. They do not change your actual Discord bot.</div>
+</section>
+
+<section class="page" id="premium">
+  <div class="eyebrow">REX MEMBERSHIP</div>
+  <h1>Premium</h1>
+  <p class="sub">Discover the premium area of the Rex dashboard.</p>
+  <div class="grid">
+    <div class="card"><div class="statlabel">✦ PREMIUM</div><h2 style="margin:15px 0">Advanced tools</h2><p class="muted">A place for premium features and configuration.</p></div>
+    <div class="card"><div class="statlabel">⚡ ULTRA</div><h2 style="margin:15px 0">Priority features</h2><p class="muted">A place for additional membership benefits.</p></div>
+  </div>
+  <div class="notice">No purchase or subscription is processed here. Connect a secure backend before adding real membership management.</div>
+</section>
+
+<div class="footer">REX DASHBOARD · Made for the Rex community<br>Dashboard preview</div>
+</div>
+</main>
+</div>
+
+<script>
+const pages = document.querySelectorAll(".page");
+const navs = document.querySelectorAll(".nav[data-page]");
+
+function showPage(id) {
+  pages.forEach(page => page.classList.toggle("active", page.id === id));
+  navs.forEach(nav => nav.classList.toggle("active", nav.dataset.page === id));
+  window.scrollTo(0, 0);
+}
+
+navs.forEach(nav => nav.addEventListener("click", () => showPage(nav.dataset.page)));
+
+document.querySelectorAll("[data-goto]").forEach(button => {
+  button.addEventListener("click", () => showPage(button.dataset.goto));
+});
+
+document.querySelectorAll(".toggle").forEach(toggle => {
+  toggle.addEventListener("click", () => {
+    const enabled = toggle.classList.toggle("on");
+    toggle.setAttribute("aria-pressed", String(enabled));
+  });
+});
+
+document.getElementById("commandSearch").addEventListener("input", function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll("#commandList .command").forEach(command => {
+    command.style.display = command.textContent.toLowerCase().includes(query) ? "flex" : "none";
+  });
+});
+
+document.getElementById("help").addEventListener("click", () => {
+  window.open("https://discord.gg/rexsupport", "_blank");
+});
+
+document.getElementById("discord").addEventListener("click", () => {
+  alert("Discord login is not connected yet. OAuth and a secure backend must be configured first.");
+});
+</script>
+</body>
+</html>
+
